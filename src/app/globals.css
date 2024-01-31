@@ -18,10 +18,13 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+}
+
+.custom-radial-gradient {
+  background: radial-gradient(
+    124.23% 171.99% at 100% -3.39%,
+    #1f4247 0%,
+    #0d1d23 56.18%,
+    #09141a 100%
+  );
 }
