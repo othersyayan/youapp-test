@@ -1,18 +1,31 @@
 'use client';
 
 import * as Yup from 'yup';
+import axios from 'axios';
 import { yupResolver } from '@hookform/resolvers/yup';
 // react / next
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 // components
+import Toast from '@/components/toast';
 import { RHFTextField } from '@/components/hook-form';
 import FormProvider from '@/components/hook-form/form-provider';
+//
+import { HOST_API } from '@/config-global';
 
 // ----------------------------------------------------------------------
 
 export default function AuthRegisterView() {
   const router = useRouter();
+
+  const [showToast, setShowToast] = useState(false);
+
+  const [toastType, setToastType] = useState<'success' | 'error' | 'default'>(
+    'default',
+  );
+
+  const [message, setMessage] = useState('Default toast');
 
   const RegisterSchema = Yup.object().shape({
     email: Yup.string()
@@ -46,17 +59,52 @@ export default function AuthRegisterView() {
 
   const onSubmit = handleSubmit(async (formValue) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      const { data, status } = await axios.post(
+        `${HOST_API}/register`,
+        formValue,
+      );
 
-      console.info(formValue);
+      if (status <= 201) {
+        setToastType('success');
+        setMessage(data.message);
+
+        let cookie = `accessToken=${formValue.username};`;
+        cookie += 'path=/;';
+        cookie += `max-age=/${60 * 60 * 24 * 1};`;
+
+        document.cookie = cookie;
+
+        router.push('/dashboard');
+      }
+
+      handleShowToast();
     } catch (error) {
-      console.error(error);
+      setToastType('error');
+
+      if (axios.isAxiosError(error)) {
+        setMessage(
+          error.response?.data.message
+            ? error.response.data.message
+            : error.response?.data,
+        );
+      } else {
+        setMessage(error as string);
+      }
+    } finally {
       reset();
     }
   });
 
+  const handleShowToast = () => {
+    setShowToast(true);
+
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+  };
+
   return (
-    <div className="flex flex-col gap-4 sm:gap-6 md:gap-12">
+    <div className="flex flex-col gap-8 md:gap-12">
       <button
         className="max-w-min flex flex-row items-center gap-2 text-sm hover:opacity-85 w-auto"
         onClick={() => router.push('/')}
@@ -81,7 +129,7 @@ export default function AuthRegisterView() {
       <div className="form-wrapper">
         <h3 className="text-xl font-bold mb-6 px-6">Register</h3>
         <FormProvider methods={methods} onSubmit={onSubmit}>
-          <div className="flex flex-col gap-4 md:gap-6">
+          <div className="flex flex-col gap-6">
             <RHFTextField
               name="email"
               type="email"
@@ -149,6 +197,8 @@ export default function AuthRegisterView() {
           Login here
         </span>
       </p>
+
+      {showToast && <Toast type={toastType} message={message} />}
     </div>
   );
 }

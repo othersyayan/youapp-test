@@ -1,18 +1,31 @@
 'use client';
 
+import axios from 'axios';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 // react / next
+import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 // components
+import Toast from '@/components/toast';
 import { RHFTextField } from '@/components/hook-form';
 import FormProvider from '@/components/hook-form/form-provider';
+//
+import { HOST_API } from '@/config-global';
 
 // ----------------------------------------------------------------------
 
 export default function AuthLoginView() {
   const router = useRouter();
+
+  const [showToast, setShowToast] = useState(false);
+
+  const [toastType, setToastType] = useState<'success' | 'error' | 'default'>(
+    'default',
+  );
+
+  const [message, setMessage] = useState('Default toast');
 
   const LoginSchema = Yup.object().shape({
     email: Yup.string()
@@ -39,17 +52,58 @@ export default function AuthLoginView() {
 
   const onSubmit = handleSubmit(async (formValue) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      const { data, status } = await axios.post(`${HOST_API}/login`, {
+        ...formValue,
+        username: '',
+      });
 
-      console.info(formValue);
+      if (
+        status <= 201 &&
+        !['User not found', 'Incorrect password'].includes(data.message)
+      ) {
+        setToastType('success');
+        setMessage(data.message);
+
+        let cookie = `accessToken=${formValue.email};`;
+        cookie += 'path=/;';
+        cookie += `max-age=/${60 * 60 * 24 * 1};`;
+
+        document.cookie = cookie;
+
+        router.push('/dashboard');
+      } else {
+        setToastType('error');
+        setMessage(data.message);
+      }
+
+      handleShowToast();
     } catch (error) {
-      console.error(error);
+      setToastType('error');
+
+      if (axios.isAxiosError(error)) {
+        setMessage(
+          error.response?.data.message
+            ? error.response.data.message
+            : error.response?.data,
+        );
+      } else {
+        setMessage(error as string);
+      }
+    } finally {
       reset();
     }
   });
 
+  const handleShowToast = () => {
+    setShowToast(true);
+
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+  };
+
   return (
-    <div className="flex flex-col gap-4 sm:gap-6 md:gap-12">
+    <div className="flex flex-col gap-8 md:gap-12">
       <button
         className="max-w-min flex flex-row items-center gap-2 text-sm hover:opacity-85 w-auto"
         onClick={() => router.push('/')}
@@ -74,7 +128,7 @@ export default function AuthLoginView() {
       <div className="form-wrapper">
         <h3 className="text-xl font-bold mb-6 px-6">Login</h3>
         <FormProvider methods={methods} onSubmit={onSubmit}>
-          <div className="flex flex-col gap-4 md:gap-6">
+          <div className="flex flex-col gap-6">
             <RHFTextField
               name="email"
               type="email"
@@ -130,6 +184,8 @@ export default function AuthLoginView() {
           Register here
         </span>
       </p>
+
+      {showToast && <Toast type={toastType} message={message} />}
     </div>
   );
 }

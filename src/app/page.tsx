@@ -24,3 +24,24 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return <HomeView />;
 }
+
+// export const getServerSideProps: GetServerSidePropsContext<HomeProps> = async (
+//   context,
+// ) => {
+//   const currentUser = context.req.cookies.get('accessToken')?.value;
+
+//   if (!currentUser) {
+//     return {
+//       redirect: {
+//         destination: '/',
+//         permanent: false,
+//       },
+//     };
+//   }
+
+//   return {
+//     props: {
+//       currentUser,
+//     },
+//   };
+// };
