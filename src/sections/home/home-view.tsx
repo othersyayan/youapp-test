@@ -10,7 +10,7 @@ export default function HomeView() {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen custom-radial-gradient w-full sm:w-1/2 md:w-2/4 lg:w-2/6 gap-8 px-4 md:px-6">
+    <div className="flex flex-col items-center justify-center min-h-screen custom-radial-gradient w-full sm:w-2/3 md:w-3/5 lg:w-2/5 gap-8 px-4 md:px-6">
       <Image
         src="/assets/image/youapp-full.png"
         width={200}
@@ -19,7 +19,7 @@ export default function HomeView() {
         style={{ width: 'auto', height: 'auto' }}
         alt="Logo"
       />
-      <p className="text-xl lg:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-[#D5BE88] via-[#F3EDA6] to-[#94783E]">
+      <p className="text-xl lg:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-tr from-[#D5BE88] via-[#F3EDA6] to-[#94783E]">
         Unique Experiences of the Day
       </p>
 

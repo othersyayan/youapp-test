@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 
-import DashboardView from '@/sections/home/dashboard-view';
+import InterestView from '@/sections/home/interest-view';
 
 // ----------------------------------------------------------------------
 
 export const metadata: Metadata = {
-  title: 'YouApp - Dashboard',
+  title: 'YouApp - Interest',
   icons: [
     {
       rel: 'icon',
@@ -20,6 +20,6 @@ export const metadata: Metadata = {
   ],
 };
 
-export default function DashboardPage() {
-  return <DashboardView />;
+export default function InterestPage() {
+  return <InterestView />;
 }

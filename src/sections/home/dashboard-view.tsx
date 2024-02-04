@@ -1,46 +1,149 @@
 'use client';
 
+import axios from 'axios';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
-// import Image from 'next/image';
+import { deleteCookie } from '@/app/actions';
+// components
+import Toast from '@/components/toast';
+import CardProfileDetail from '@/components/cards/card-profile-detail';
+import CardProfileHighlight from '@/components/cards/card-profile-highlight';
+//
+import { HOST_API } from '@/config-global';
 
 // ----------------------------------------------------------------------
+
+export type IUser = {
+  email: string;
+  username: string;
+  interests: string[];
+  birthday?: string;
+  horoscope?: string;
+  zodiac?: string;
+  height?: number;
+  weight?: number;
+};
 
 export default function DashboardView() {
   const router = useRouter();
 
-  const handleLogout = () => {
-    document.cookie = 'accessToken' + '=; Max-Age=-99999999;';
+  const [loading, setLoading] = useState(true);
+  const [showToast, setShowToast] = useState(false);
+
+  const [user, setUser] = useState<IUser | null>(null);
+
+  const [toastType, setToastType] = useState<'success' | 'error' | 'default'>(
+    'default',
+  );
+
+  const [message, setMessage] = useState('Default toast');
+
+  const getUserProfile = async () => {
+    const token = localStorage.getItem('accessToken');
+
+    try {
+      const { data, status } = await axios.get(`${HOST_API}/getProfile`, {
+        headers: {
+          'x-access-token': token,
+        },
+      });
+
+      if (status === 200 && data) {
+        setUser(data.data);
+      }
+    } catch (error) {
+      setToastType('error');
+
+      if (axios.isAxiosError(error)) {
+        setMessage(
+          error.response?.data.message
+            ? error.response.data.message
+            : error.response?.data,
+        );
+      } else {
+        setMessage(error as string);
+      }
+
+      handleShowToast();
+
+      handleLogout();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await deleteCookie('accessToken');
+
+    localStorage.removeItem('accessToken');
 
     router.push('/');
   };
 
-  return (
-    <div className="flex flex-col gap-8 md:gap-12">
+  const handleShowToast = () => {
+    setShowToast(true);
+
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+  };
+
+  const dashboardSkeleton = (
+    <div className="animate-pulse flex flex-col gap-4 md:gap-6">
       <div className="flex flex-row items-center gap-4 justify-between">
-        <div>Username</div>
-        <button
-          className="max-w-min flex flex-row items-center gap-1 text-sm hover:opacity-85 w-auto text-red-500 stroke-red-500"
-          onClick={handleLogout}
-        >
-          <span>Logout</span>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="w-6 h-6 "
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
-            />
-          </svg>
-        </button>
+        <div className="rounded-full bg-slate-700 h-4 w-20" />
+        <div className="rounded-full bg-slate-700 h-4 w-20" />
       </div>
-      <div>Dashboard Page</div>
+
+      <div className="rounded-lg bg-slate-700 h-44 w-full" />
+      <div className="rounded-lg bg-slate-700 h-24 w-full" />
+      <div className="rounded-lg bg-slate-700 h-24 w-full" />
+    </div>
+  );
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+
+    if (token) {
+      getUserProfile();
+    } else {
+      router.push('/');
+    }
+  }, []);
+
+  return (
+    <div className="flex flex-col min-h-screen w-full sm:w-2/3 md:w-3/5 lg:w-2/5 px-4 md:px-6 py-8 bg-[#09141A]">
+      {loading ? (
+        dashboardSkeleton
+      ) : (
+        <div className="flex flex-col gap-4 md:gap-6">
+          <div className="flex flex-row items-center gap-4 justify-between">
+            <p className="text-sm">@{user?.username || 'johndoe'}</p>
+            <button
+              className="max-w-min flex flex-row items-center gap-1 text-sm hover:opacity-85 w-auto text-red-500 stroke-red-500"
+              onClick={handleLogout}
+            >
+              <span>Logout</span>
+            </button>
+          </div>
+
+          <CardProfileHighlight
+            profile={{
+              username: user?.username || 'johndoe',
+            }}
+          />
+
+          <CardProfileDetail type="about" user={user} />
+
+          <CardProfileDetail
+            user={user}
+            type="interest"
+            interests={user?.interests || []}
+          />
+        </div>
+      )}
+
+      {showToast && <Toast type={toastType} message={message} />}
     </div>
   );
 }

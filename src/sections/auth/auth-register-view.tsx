@@ -68,16 +68,16 @@ export default function AuthRegisterView() {
         setToastType('success');
         setMessage(data.message);
 
-        let cookie = `accessToken=${formValue.username};`;
+        let cookie = `accessToken=${data.access_token};`;
         cookie += 'path=/;';
         cookie += `max-age=/${60 * 60 * 24 * 1};`;
 
         document.cookie = cookie;
 
-        router.push('/dashboard');
-      }
+        localStorage.setItem('accessToken', data.access_token);
 
-      handleShowToast();
+        window.location.replace('/dashboard');
+      }
     } catch (error) {
       setToastType('error');
 
@@ -92,6 +92,7 @@ export default function AuthRegisterView() {
       }
     } finally {
       reset();
+      handleShowToast();
     }
   });
 
@@ -156,7 +157,7 @@ export default function AuthRegisterView() {
             />
             <button
               type="submit"
-              className="bg-gradient-to-r from-[#62CCCD] hover:from-[#62CCCD]/85 to-[#4599DB] hover:to-[#4599DB]/85 py-3 px-8 rounded-lg text-base inline-flex items-center leading-6 justify-center disabled:from-[#62CCCD]/70 disabled:to-[#4599DB]/70 disabled:text-white/70 disabled:cursor-not-allowed"
+              className="bg-gradient-to-r from-[#62CCCD] hover:from-[#62CCCD]/85 to-[#4599DB] hover:to-[#4599DB]/85 py-3 px-8 rounded-lg text-sm inline-flex items-center leading-6 justify-center disabled:from-[#62CCCD]/70 disabled:to-[#4599DB]/70 disabled:text-white/70 disabled:cursor-not-allowed"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
