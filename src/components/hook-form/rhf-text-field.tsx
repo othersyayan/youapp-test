@@ -5,9 +5,10 @@ import { useFormContext, Controller } from 'react-hook-form';
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
   name: string;
+  variant: 'small' | 'medium';
 };
 
-export default function RHFTextField({ name, type, ...other }: Props) {
+export default function RHFTextField({ type, name, variant, ...other }: Props) {
   const { control } = useFormContext();
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -62,11 +63,15 @@ export default function RHFTextField({ name, type, ...other }: Props) {
             {...field}
             type={type === 'password' && showPassword ? 'text' : type}
             value={type === 'number' && field.value === 0 ? '' : field.value}
-            className={`bg-white/10 text-white text-sm rounded-lg-0 block w-full px-5 py-4 border ${
+            className={`bg-white/10 text-white text-sm rounded-lg-0 block w-full ${
+              variant === 'small' ? 'px-3 py-2' : 'px-5 py-4'
+            }  border ${
               error
                 ? 'border-red-500 text-red-500 placeholder:text-red-500'
                 : 'border-white/10'
-            } outline-none focus:outline-white/20 rounded-lg disabled:placeholder:text-white/30 disabled:text-white/30 disabled:cursor-not-allowed`}
+            } outline-none focus:outline-white/20 rounded-lg disabled:placeholder:text-white/30 disabled:text-white/30 disabled:cursor-not-allowed ${
+              type === 'date' ? 'date-custom' : ''
+            }`}
             {...other}
           />
           {!!error && (

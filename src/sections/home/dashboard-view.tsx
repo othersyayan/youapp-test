@@ -1,9 +1,9 @@
 'use client';
 
 import axios from 'axios';
-import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { deleteCookie } from '@/app/actions';
+import { useState, useEffect, useCallback } from 'react';
 // components
 import Toast from '@/components/toast';
 import CardProfileDetail from '@/components/cards/card-profile-detail';
@@ -17,6 +17,7 @@ export type IUser = {
   email: string;
   username: string;
   interests: string[];
+  gender?: string;
   birthday?: string;
   horoscope?: string;
   zodiac?: string;
@@ -27,7 +28,7 @@ export type IUser = {
 export default function DashboardView() {
   const router = useRouter();
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
 
   const [user, setUser] = useState<IUser | null>(null);
@@ -48,6 +49,8 @@ export default function DashboardView() {
 
   const getUserProfile = useCallback(async () => {
     const token = localStorage.getItem('accessToken');
+
+    setLoading(true);
 
     try {
       const { data, status } = await axios.get(`${HOST_API}/getProfile`, {
@@ -93,6 +96,7 @@ export default function DashboardView() {
       <div className="flex flex-row items-center gap-4 justify-between">
         <div className="rounded-full bg-slate-700 h-4 w-20" />
         <div className="rounded-full bg-slate-700 h-4 w-20" />
+        <div className="rounded-full bg-slate-700 h-4 w-20" />
       </div>
 
       <div className="rounded-lg bg-slate-700 h-44 w-full" />
@@ -117,7 +121,27 @@ export default function DashboardView() {
         dashboardSkeleton
       ) : (
         <div className="flex flex-col gap-4 md:gap-6">
-          <div className="flex flex-row items-center gap-4 justify-between">
+          <div className="flex flex-row items-center gap-4 justify-between mb-4">
+            <button
+              className="max-w-min flex flex-row items-center gap-2 text-sm hover:opacity-85 w-auto"
+              onClick={() => router.push('/dashboard')}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+                className="w-5 h-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 19.5 8.25 12l7.5-7.5"
+                />
+              </svg>
+              <span>Back</span>
+            </button>
             <p className="text-sm">@{user?.username || 'johndoe'}</p>
             <button
               className="max-w-min flex flex-row items-center gap-1 text-sm hover:opacity-85 w-auto text-red-500 stroke-red-500"
@@ -130,15 +154,24 @@ export default function DashboardView() {
           <CardProfileHighlight
             profile={{
               username: user?.username || 'johndoe',
+              age: calculateAge(user?.birthday!),
+              gender: user?.gender || 'Male',
+              zodiac: user?.zodiac,
+              horoscope: user?.horoscope,
             }}
           />
 
-          <CardProfileDetail type="about" user={user} />
+          <CardProfileDetail
+            type="about"
+            user={user}
+            handleAfterSubmit={getUserProfile}
+          />
 
           <CardProfileDetail
             user={user}
             type="interest"
             interests={user?.interests || []}
+            handleAfterSubmit={() => console.log('none')}
           />
         </div>
       )}
@@ -147,3 +180,20 @@ export default function DashboardView() {
     </div>
   );
 }
+
+export const calculateAge = (birthdate: string) => {
+  const today = new Date();
+  const birthDate = new Date(new Date(birthdate).getTime());
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+
+  return age;
+};

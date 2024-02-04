@@ -68,15 +68,7 @@ export default function AuthRegisterView() {
         setToastType('success');
         setMessage(data.message);
 
-        let cookie = `accessToken=${data.access_token};`;
-        cookie += 'path=/;';
-        cookie += `max-age=/${60 * 60 * 24 * 1};`;
-
-        document.cookie = cookie;
-
-        localStorage.setItem('accessToken', data.access_token);
-
-        window.location.replace('/dashboard');
+        window.location.replace('/auth/login');
       }
     } catch (error) {
       setToastType('error');
@@ -134,24 +126,28 @@ export default function AuthRegisterView() {
             <RHFTextField
               name="email"
               type="email"
+              variant="medium"
               disabled={isSubmitting}
               placeholder="Enter email"
             />
             <RHFTextField
               name="username"
               type="text"
+              variant="medium"
               disabled={isSubmitting}
               placeholder="Create username"
             />
             <RHFTextField
               name="password"
               type="password"
+              variant="medium"
               disabled={isSubmitting}
               placeholder="Create password"
             />
             <RHFTextField
               name="confirmPassword"
               type="password"
+              variant="medium"
               disabled={isSubmitting}
               placeholder="Confirm password"
             />

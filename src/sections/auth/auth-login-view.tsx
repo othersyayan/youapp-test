@@ -134,12 +134,14 @@ export default function AuthLoginView() {
             <RHFTextField
               name="email"
               type="email"
+              variant="medium"
               disabled={isSubmitting}
               placeholder="Enter email"
             />
             <RHFTextField
               name="password"
               type="password"
+              variant="medium"
               disabled={isSubmitting}
               placeholder="Enter password"
             />

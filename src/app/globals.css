@@ -28,3 +28,12 @@ body {
     #09141a 100%
   );
 }
+
+.date-custom::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(100%);
+}
+
+.date-custom::placeholder {
+  color: rgb(255 255 255 / 0.3);
+}
