@@ -50,7 +50,7 @@ function CardProfileDetail({ type, interests, user }: Props) {
     } else {
       router.push('/dashboard/interest');
     }
-  }, [showForm, setShowForm]);
+  }, [showForm, setShowForm, router, type]);
 
   const renderEditButton = (
     <button className="hover:opacity-75" onClick={handleEditDetail}>

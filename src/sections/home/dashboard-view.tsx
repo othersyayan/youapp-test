@@ -1,7 +1,7 @@
 'use client';
 
 import axios from 'axios';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { deleteCookie } from '@/app/actions';
 // components
@@ -38,7 +38,15 @@ export default function DashboardView() {
 
   const [message, setMessage] = useState('Default toast');
 
-  const getUserProfile = async () => {
+  const handleLogout = useCallback(async () => {
+    await deleteCookie('accessToken');
+
+    localStorage.removeItem('accessToken');
+
+    router.push('/');
+  }, [router]);
+
+  const getUserProfile = useCallback(async () => {
     const token = localStorage.getItem('accessToken');
 
     try {
@@ -70,15 +78,7 @@ export default function DashboardView() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleLogout = async () => {
-    await deleteCookie('accessToken');
-
-    localStorage.removeItem('accessToken');
-
-    router.push('/');
-  };
+  }, [handleLogout]);
 
   const handleShowToast = () => {
     setShowToast(true);
@@ -109,7 +109,7 @@ export default function DashboardView() {
     } else {
       router.push('/');
     }
-  }, []);
+  }, [getUserProfile, router]);
 
   return (
     <div className="flex flex-col min-h-screen w-full sm:w-2/3 md:w-3/5 lg:w-2/5 px-4 md:px-6 py-8 bg-[#09141A]">

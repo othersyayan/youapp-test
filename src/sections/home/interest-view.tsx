@@ -14,7 +14,7 @@ export default function InterestView() {
     if (!token) {
       router.push('/');
     }
-  }, []);
+  }, [router]);
 
   return (
     <div className="flex flex-col gap-8 md:gap-12">
@@ -47,10 +47,10 @@ export default function InterestView() {
       </div>
 
       <div className="wrapper-text">
-        <p className="text-base lg:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-br from-[#D5BE88] via-[#F3EDA6] to-[#94783E] mb-2">
+        <p className="text-lg lg:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-br from-[#D5BE88] via-[#F3EDA6] to-[#94783E] mb-2">
           Tell everyone about yourself
         </p>
-        <p className="text-xl font-bold">What interest you?</p>
+        <p className="text-2xl font-bold">What interest you?</p>
       </div>
     </div>
   );
