@@ -124,7 +124,7 @@ export default function InterestView() {
   const handleSubmit = useCallback(async () => {
     if (!selectedOption.length) {
       setToastType('error');
-      setMessage('Please select your interets!');
+      setMessage('Please select your interests!');
 
       handleShowToast();
     } else {
